@@ -53,7 +53,7 @@ class Component_number(tk.Frame):
         self.buttons['add_large']['text'] = '+%d' % self.large
 
     def place_parts(self):
-        self.labels['title'].place(relx=0.5, rely=0.1, anchor='c')
+        self.labels['title'].place(relx=0.5, rely=0.1, anchor='n')
         self.buttons['sub_large'].place(relx=0.1, rely=0.5, anchor='c')
         self.buttons['sub_small'].place(relx=0.3, rely=0.5, anchor='c')
         self.labels['num'].place(relx=0.5, rely=0.5, anchor='c')
@@ -76,12 +76,25 @@ root = tk.Tk()
 root.geometry('800x600+100+200')
 root.resizable(False, False)
 
-comp_num = Component_number(root)
-comp_num.place(relx=0.2, rely=0.3, width=200, height=100)
 
-b1 = tk.Button(root, text='hide', command=comp_num.hide_buttons)
+f1 = tk.Frame(root, width=200, height=100)
+comp_num1 = Component_number(f1)
+comp_num1.place(width=200, height=100)
+f2 = tk.Frame(root, width=200, height=100)
+comp_num2 = Component_number(f2, name='zzzz')
+comp_num2.place(width=200, height=100)
+
+f1.pack()
+f2.pack()
+
+
+# comp_num.place(dict(relx=0.2, rely=0.3, width=200, height=100))
+
+# comp_num.place(dict(relx=0.2, rely=0.3, width=200, height=100))
+
+b1 = tk.Button(root, text='hide', command=comp_num1.hide_buttons)
 b1.pack()
-b2 = tk.Button(root, text='show', command=comp_num.show_buttons)
+b2 = tk.Button(root, text='show', command=comp_num1.show_buttons)
 b2.pack()
 
 root.mainloop()
