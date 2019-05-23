@@ -46,6 +46,7 @@ def tc(s=None):
 def cc(b=None):
     if b is None:
         return
+    print(b.pi)
     if b.visible:
         b.place_forget()
         b.visible = False
