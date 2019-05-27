@@ -186,7 +186,11 @@ def add_components_model_training(master):
 
     button_select = tk.Button(master, text='Select', command=select_file)
 
-    button_train = tk.Button(master, text='Train')
+    def model_train():
+        acc = random.choice(range(70, 100))
+        label_score_output['text'] = '%02d%%' % acc
+
+    button_train = tk.Button(master, text='Train', command=model_train)
 
     label_score = tk.Label(master, text='Score')
 
@@ -209,3 +213,14 @@ def add_components_model_selection(master):
     button_select = tk.Button(master, text='Select', command=select_file)
 
     return label_model_select, text_file_name, button_select
+
+
+def add_components_profile_selection(master):
+    button_save = tk.Button(master, text='Save')
+    button_load = tk.Button(master, text='Load')
+
+    label = tk.Label(master, text='Profile name')
+
+    combobox = ttk.Combobox(master, textvariable=tk.StringVar(), width=15)
+
+    return label, combobox, button_save, button_load
