@@ -35,3 +35,10 @@ def build_parts_modeltrain_info(master):
                       sticky=tk.NSEW, padx=5, pady=5)
 
     return parts
+
+
+def get_modeltrain_info(parts):
+    info = {}
+    info['file_path'] = parts['modeltrain_text_file_name'].get(
+        1.0, tk.END)[:-1]
+    return info

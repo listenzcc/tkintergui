@@ -25,3 +25,10 @@ def build_parts_connection_info(master):
                       sticky=tk.NSEW, padx=5, pady=5)
 
     return parts
+
+
+def get_connection_info(parts):
+    info = {}
+    info['IP'] = parts['input_IP'].get()
+    info['port'] = parts['input_port'].get()
+    return info

@@ -37,3 +37,12 @@ def build_parts_subject_info(master):
                       sticky=tk.NSEW, padx=5, pady=5)
 
     return parts
+
+
+def get_subject_info(parts):
+    info = {}
+    info['subject_name'] = parts['input_subject_name'].get()
+    info['subject_age'] = parts['input_subject_age'].get()
+    info['subject_sex'] = parts['input_subject_sex'].get()
+    info['date'] = parts['label_date']['text']
+    return info

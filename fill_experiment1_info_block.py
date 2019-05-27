@@ -52,3 +52,9 @@ def build_parts_experiment1_info(master):
         row=6, column=0, sticky=tk.NSEW, padx=5, pady=5, columnspan=4)
 
     return parts
+
+
+def get_experiment1_info(parts):
+    info = {}
+    info['counter1_value']
+    return info
