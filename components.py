@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import os
 import random
 import time
 import tkinter as tk
@@ -222,5 +223,9 @@ def add_components_profile_selection(master):
     label = tk.Label(master, text='Profile name')
 
     combobox = ttk.Combobox(master, textvariable=tk.StringVar(), width=15)
+    names = os.listdir('profiles')
+    combobox['values'] = names
+    if names:
+        combobox.current(0)
 
     return label, combobox, button_save, button_load

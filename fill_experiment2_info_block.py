@@ -36,7 +36,7 @@ def build_parts_experiment2_info(master):
         master=master)
     parts['experiment2_label_selectdata'] = label_model_select
     parts['experiment2_button_selectdata'] = button_select
-    parts['experiment2_text_file_name'] = text_file_name
+    parts['experiment2_text_file_path'] = text_file_name
 
     grid_info = dict(experiment2_counter1_label=dict(row=4, column=0),
                      experiment2_counter1_button_s1=dict(row=4, column=1),
@@ -60,7 +60,7 @@ def build_parts_experiment2_info(master):
         row=6, column=0, sticky=tk.NSEW, padx=5, pady=5, columnspan=4)
     parts['experiment2_button_selectdata'].grid(
         row=7, column=0, sticky=tk.NSEW, padx=5, pady=5, columnspan=4)
-    parts['experiment2_text_file_name'].grid(
+    parts['experiment2_text_file_path'].grid(
         row=8, column=0, sticky=tk.NSEW, padx=5, pady=5, columnspan=4)
 
     parts['experiment2_task_gobutton'].grid(
