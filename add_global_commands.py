@@ -11,7 +11,7 @@ from fill_connection_info_block import get_connection_info
 from fill_modeltrain_info_block import get_modeltrain_info
 from fill_experiment1_info_block import get_experiment1_info
 from fill_experiment2_info_block import get_experiment2_info
-from perform_experiment1 import presentation
+from perform_experiment import presentation, presentation_testing
 
 
 def set_command(button, command):
@@ -81,51 +81,133 @@ def experiment1_go(parts):
     return infos
 
 
+def experiment2_go(parts):
+    push_all_combobox_input(parts)
+    infos = get_infos(parts)
+    print_infos(infos)
+
+    task_name = infos['experiment2_info']['task_name']
+    table = {'Quzhou ': 'quzhou',
+             'Shenchu': 'shenchu',
+             'Taishou': 'taiqi',
+             'Waizhan': 'waizhan'}
+    task_name = table[task_name]
+
+    num_trails = infos['experiment2_info']['counter1_value']
+    num_runs = infos['experiment2_info']['counter2_value']
+
+    model_name = infos['experiment2_info']['model_path']
+
+    task_map, predict_map = presentation_testing(model=model_name,
+                                                 task_name=task_name,
+                                                 num_trails=num_trails,
+                                                 num_runs=num_runs)
+
+    mk_html_report_experiment2(infos, task_map, predict_map, model_name)
+
+    return infos
+
+
 def mk_html_report_experiment1(infos, task_map):
     html_tmp_path = os.path.join('resources', 'report_tmp.html')
 
     with open(html_tmp_path, 'rb') as f:
         lines = f.readlines()
 
-    new_html_path = os.path.join('a.html')
-    f = open(new_html_path, 'w')
-    for line in lines:
-        f.write(line.decode())
+    new_html_path = os.path.join(os.path.join('reports', 'a.html'))
+    with open(new_html_path, 'w') as f:
+        for line in lines:
+            f.write(line.decode())
 
-        if b'<!--tobefilled: subject information-->' in line:
-            f.write('<td>%s</td>' % infos['subject_info']['subject_name'])
-            f.write('<td>%s</td>' % infos['subject_info']['subject_age'])
-            f.write('<td>%s</td>' % infos['subject_info']['subject_sex'])
-            f.write('<td>%s</td>' % infos['subject_info']['date'])
+            if b'<!--tobefilled: subject information-->' in line:
+                f.write('<td>%s</td>' % infos['subject_info']['subject_name'])
+                f.write('<td>%s</td>' % infos['subject_info']['subject_age'])
+                f.write('<td>%s</td>' % infos['subject_info']['subject_sex'])
+                f.write('<td>%s</td>' % infos['subject_info']['date'])
 
-        if b'<!--tobefilled: experiment information-->' in line:
-            f.write('<td>%s</td>' % infos['experiment1_info']['task_name'])
-            f.write('<td>%d</td>' %
-                    infos['experiment1_info']['counter1_value'])
-            f.write('<td>%d</td>' %
-                    infos['experiment1_info']['counter2_value'])
+            if b'<!--tobefilled: experiment information-->' in line:
+                f.write('<td>%s</td>' % infos['experiment1_info']['task_name'])
+                f.write('<td>%d</td>' %
+                        infos['experiment1_info']['counter1_value'])
+                f.write('<td>%d</td>' %
+                        infos['experiment1_info']['counter2_value'])
 
-        if b'<!--tobefilled: experiment detail-->' in line:
-            num_trails = infos['experiment1_info']['counter1_value']
-            num_runs = infos['experiment1_info']['counter2_value']
-            f.write('<table>')
+            if b'<!--tobefilled: experiment detail-->' in line:
+                num_trails = infos['experiment1_info']['counter1_value']
+                num_runs = infos['experiment1_info']['counter2_value']
+                f.write('<table>')
 
-            f.write('<thead>')
-            f.write('<tr>')
-            for j in range(num_trails):
-                f.write('<th>%d</th>' % (j+1))
-            f.write('</tr>')
-            f.write('</thead>')
-
-            for _run in range(num_runs):
+                f.write('<thead>')
                 f.write('<tr>')
-                for _trail in range(num_trails):
-                    f.write('<td>%d</td>' % task_map[(_run, _trail)])
+                for j in range(num_trails):
+                    f.write('<th>%d</th>' % (j+1))
                 f.write('</tr>')
+                f.write('</thead>')
 
-            f.write('</table>')
+                for _run in range(num_runs):
+                    f.write('<tr>')
+                    for _trail in range(num_trails):
+                        f.write('<td>%d</td>' % task_map[(_run, _trail)])
+                    f.write('</tr>')
 
-    webbrowser.open_new_tab(new_html_path)
+                f.write('</table>')
+
+    webbrowser.open(new_html_path)
+
+
+def mk_html_report_experiment2(infos, task_map, predict_map, model_name):
+    html_tmp_path = os.path.join('resources', 'report_tmp.html')
+
+    with open(html_tmp_path, 'rb') as f:
+        lines = f.readlines()
+
+    new_html_path = os.path.join(os.path.join('reports', 'a.html'))
+    with open(new_html_path, 'w') as f:
+        for line in lines:
+            f.write(line.decode())
+
+            if b'<!--tobefilled: subject information-->' in line:
+                f.write('<td>%s</td>' % infos['subject_info']['subject_name'])
+                f.write('<td>%s</td>' % infos['subject_info']['subject_age'])
+                f.write('<td>%s</td>' % infos['subject_info']['subject_sex'])
+                f.write('<td>%s</td>' % infos['subject_info']['date'])
+
+            if b'<!--tobefilled: experiment information-->' in line:
+                f.write('<td>%s</td>' % infos['experiment1_info']['task_name'])
+                f.write('<td>%d</td>' %
+                        infos['experiment1_info']['counter1_value'])
+                f.write('<td>%d</td>' %
+                        infos['experiment1_info']['counter2_value'])
+
+            if b'<!--tobefilled: experiment detail-->' in line:
+                num_trails = infos['experiment2_info']['counter1_value']
+                num_runs = infos['experiment2_info']['counter2_value']
+                f.write('<table>')
+
+                f.write('<thead>')
+                f.write('<tr>')
+                for j in range(num_trails):
+                    f.write('<th>%d</th>' % (j+1))
+                f.write('</tr>')
+                f.write('</thead>')
+
+                for _run in range(num_runs):
+                    f.write('<tr>')
+                    for _trail in range(num_trails):
+                        if task_map[(_run, _trail)] == predict_map[(_run, _trail)]:
+                            f.write('<td>%d</td>' % task_map[(_run, _trail)])
+                        else:
+                            f.write('<td>%d-</td>' % task_map[(_run, _trail)])
+                    f.write('</tr>')
+
+                f.write('</table>')
+
+            if b'<!--tobefilled: model path-->' in line:
+                f.write('<p>')
+                f.write('model: %s' % model_name)
+                f.write('</p>')
+
+    webbrowser.open(new_html_path)
 
 
 def save_profile(parts):

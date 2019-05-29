@@ -11,7 +11,7 @@ from fill_modeltrain_info_block import build_parts_modeltrain_info
 from fill_experiment1_info_block import build_parts_experiment1_info
 from fill_experiment2_info_block import build_parts_experiment2_info
 from fill_profile_info_block import build_parts_profile_info
-from add_global_commands import set_command, save_profile, load_profile, experiment1_go
+from add_global_commands import set_command, save_profile, load_profile, experiment1_go, experiment2_go
 
 root = tk.Tk()
 root.geometry('800x800+100+100')
@@ -50,6 +50,8 @@ for block in parts.items():
 
 set_command(parts['experiment1_info']['experiment1_task_gobutton'],
             lambda p=parts: experiment1_go(p))
+set_command(parts['experiment2_info']['experiment2_task_gobutton'],
+            lambda p=parts: experiment2_go(p))
 set_command(parts['profile_info']['profile_button_save_profile'],
             lambda p=parts: save_profile(p))
 set_command(parts['profile_info']['profile_button_load_profile'],

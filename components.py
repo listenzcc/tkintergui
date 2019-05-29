@@ -215,6 +215,7 @@ def add_components_model_training(master):
     label_data_select = tk.Label(master, text='Select Data')
 
     text_file_name = tk.Text(master, height=3, width=20)
+    text_file_name.insert(tk.INSERT, '[path/to/data]')
 
     def select_file():
         fname = filedialog.askopenfilename()
@@ -241,6 +242,7 @@ def add_components_model_selection(master):
     label_model_select = tk.Label(master, text='Select Model')
 
     text_file_name = tk.Text(master, height=3, width=20)
+    text_file_name.insert(tk.INSERT, '[path/to/model]')
 
     def select_file():
         fname = filedialog.askopenfilename()
