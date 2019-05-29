@@ -56,7 +56,7 @@ def build_parts_experiment1_info(master):
 
 def get_experiment1_info(parts):
     info = {}
-    info['task'] = parts['experiment1_task_var'].get()
+    info['task_name'] = parts['experiment1_task_var'].get()
     info['counter1_value'] = int(parts['experiment1_counter1_value']['text'])
     info['counter2_value'] = int(parts['experiment1_counter2_value']['text'])
     return info

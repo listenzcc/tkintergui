@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from psychopy import visual, core, event
 import os
 import random
 import time
@@ -49,12 +50,12 @@ def good_fg(bg):
         return 'black'
 
 
-def combobox_enter_pressed(event):
+def combobox_enter_pressed(_event):
     # Add new entry if <Enter Key> is pressed
-    if event.keycode != 13:
+    if _event.keycode != 13:
         return
 
-    cb = event.widget
+    cb = _event.widget
     if not isinstance(cb, ttk.Combobox):
         print('Warning:', 'wrong widget called.')
         print('Got:', type(cb), 'instead of', 'tkinter.ttk.Combobox.')
@@ -71,8 +72,9 @@ def add_components_date(master):
     label_date_label = tk.Label(master, text='Date:')
     label_date = tk.Label(master, text=time.strftime('%Y-%m-%d-%H-%M-%S'))
 
-    def update_date(event):
-        label_date['text'] = time.strftime('%Y-%m-%d-%H-%M-%S')
+    def update_date(_event):
+        widget = _event.widget
+        widget['text'] = time.strftime('%Y-%m-%d-%H-%M-%S')
 
     label_date.bind('<Button-1>', update_date)
 
@@ -87,7 +89,7 @@ def add_components_subject_sex(master):
     combobox['values'] = history_subjects
     combobox.current(0)
 
-    label = tk.Label(master, text='Name:')
+    label = tk.Label(master, text='Sex:')
 
     return combobox, label
 
@@ -117,6 +119,38 @@ def add_components_subject_age(master):
     return combobox, label
 
 
+def perform_task(task_name):
+    win = visual.Window()
+    msg = visual.TextStim(win, text=task_name)
+    msg.draw()
+    win.flip()
+
+    table = {'Quzhou ': 'quzhou',
+             'Shenchu': 'shenchu',
+             'Taishou': 'taiqi',
+             'Waizhan': 'waizhan'}
+    task_name = table[task_name]
+
+    pics_dir = os.path.join('movie_4D', 'pics')
+    n = len([s for s in os.listdir(pics_dir) if s.startswith(task_name)])
+    s = 4 / (n-1)
+
+    imgs = [visual.ImageStim(win, image=os.path.join(
+        pics_dir, '%s_%d.png' % (task_name, j))) for j in range(n)]
+
+    # event.waitKeys()
+
+    t = time.time()
+    for j, img in enumerate(imgs):
+        img.draw()
+        win.flip()
+        while (time.time()-t) < s*j:
+            pass
+    print(time.time()-t)
+
+    win.close()
+
+
 def add_components_experiment_task(master):
     task_name = ['Quzhou ',
                  'Shenchu',
@@ -128,14 +162,17 @@ def add_components_experiment_task(master):
         radiobuttons[i] = tk.Radiobutton(master, variable=var, text=e, value=e)
     var.set(task_name[0])
 
+#     button = tk.Button(master=master, text='>',
+#                        command=lambda: print(var.get()))
+
     button = tk.Button(master=master, text='>',
-                       command=lambda: print(var.get()))
+                       command=lambda: perform_task(var.get()))
 
     return radiobuttons, var, button
 
 
 def add_components_counter(master):
-    label_count = tk.Label(master, text='5')
+    label_count = tk.Label(master, text='6')
 
     def _add():
         x = int(label_count['text'])

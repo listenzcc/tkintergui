@@ -71,9 +71,9 @@ def build_parts_experiment2_info(master):
 
 def get_experiment2_info(parts):
     info = {}
-    info['task'] = parts['experiment2_task_var'].get()
+    info['task_name'] = parts['experiment2_task_var'].get()
     info['counter1_value'] = int(parts['experiment2_counter1_value']['text'])
     info['counter2_value'] = int(parts['experiment2_counter2_value']['text'])
-    info['model_path'] = parts['experiment2_text_file_name'].get(
+    info['model_path'] = parts['experiment2_text_file_path'].get(
         1.0, tk.END)[:-1]
     return info
