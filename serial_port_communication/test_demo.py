@@ -2,7 +2,7 @@
 
 import serial
 
-ser = serial.Serial('COM5', 19200)
+ser = serial.Serial('COM5', 19200, bytesize=8, stopbits=1)
 
 outlabel = '66 01 01 05 00 05 00 55'
 
