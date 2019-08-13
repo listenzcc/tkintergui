@@ -12,23 +12,26 @@ def build_parts_experiment2_info(master):
     parts['experiment2_task_radiobuttons'] = radiobuttons
     parts['experiment2_task_viewbutton'] = button
 
+    # Counter 1
     label_note, label_count, button_s1, button_a1 = add_components_counter(
         master=master)
-    label_note['text'] = 'Counter I'
+    label_note['text'] = '每轮次数'
     parts['experiment2_counter1_label'] = label_note
     parts['experiment2_counter1_value'] = label_count
     parts['experiment2_counter1_button_s1'] = button_s1
     parts['experiment2_counter1_button_a1'] = button_a1
 
+    # Counter 2
     label_note, label_count, button_s1, button_a1 = add_components_counter(
         master=master)
-    label_note['text'] = 'Counter II'
+    label_note['text'] = '训练轮次'
     parts['experiment2_counter2_label'] = label_note
     parts['experiment2_counter2_value'] = label_count
     parts['experiment2_counter2_button_s1'] = button_s1
     parts['experiment2_counter2_button_a1'] = button_a1
 
-    button = tk.Button(master=master, text='Go!!!',
+    # Start button
+    button = tk.Button(master=master, text='测试阶段实验开始',
                        command=lambda: print('Experiment II starts.'))
     parts['experiment2_task_gobutton'] = button
 

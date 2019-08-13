@@ -58,3 +58,18 @@ set_command(parts['profile_info']['profile_button_load_profile'],
             lambda p=parts: load_profile(p))
 
 root.mainloop()
+
+########################
+# Todo: Train model and predict imaging motion
+# Train model:
+# components.py (228): finish function model_train()
+# components.py (241): add function model_train_on_data()
+# Predict imaging motion:
+# perform_experiment.py (72): finish function predict()
+# perform_experiment.py (139): add function read_lastest_data()
+
+########################
+# By the way,
+# Parameters of experiment design is hard coded in perform_experiment.py
+# If require longer gap between two stimuli in testing experiment,
+# larger time_rest in line 86 in perform_experiment.py.

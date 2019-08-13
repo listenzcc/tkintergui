@@ -70,6 +70,9 @@ def presentation(task_name='quzhou', num_trails=5, num_runs=5):
 
 
 def predict(model=None, data=None):
+    ##############
+    # Predict whether imaging motion is performed, based on data and model
+    # label= 0, 1: 0 means no motion, 1 means motion.
     label = random.choice([0, 1])
     return label
 
@@ -138,7 +141,13 @@ def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=
                         pass
             print('Passed: %f seconds.' % (time.time()-t))
 
-            label = predict()
+            ########################
+            # Predict whether imaging motion is performed,
+            # Based on model and data.
+            # I have invited model in.
+            # Todo: read data from somewhere.
+            # data = read_lastest_data(): read data from last several seconds.
+            label = predict(model=model, data=None)
             predict_map[(_run, _trail)] = label
             if label == task_map[(_run, _trail)]:
                 msg = visual.TextStim(win, text='Correct.')

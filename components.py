@@ -34,7 +34,7 @@ class Block(tk.Frame):
         self.labels['head'].place(relx=0, rely=0)
         self.labels['foot'] = tk.Label(
             self, text=time.ctime(), bg=self['bg'], fg=self.fg)
-        self.labels['foot'].place(relx=1, rely=1, anchor='se')
+        # self.labels['foot'].place(relx=1, rely=1, anchor='se')
         for label in self.labels.values():
             label.pi = label.place_info()
 
@@ -84,7 +84,7 @@ def add_components_date(master):
 def add_components_subject_sex(master):
     combobox = ttk.Combobox(master, textvariable=tk.StringVar(), width=15)
     combobox.bind('<Key>', combobox_enter_pressed)
-    history_subjects = ['Female', 'Male', 'Chaos']
+    history_subjects = ['Female', 'Male']  # , 'Chaos']
     history_subjects.sort()
     combobox['values'] = history_subjects
     combobox.current(0)
@@ -212,7 +212,7 @@ def add_components_connection_info(master):
 
 
 def add_components_model_training(master):
-    label_data_select = tk.Label(master, text='Select Data')
+    label_data_select = tk.Label(master, text='实验文件')
 
     text_file_name = tk.Text(master, height=3, width=20)
     text_file_name.insert(tk.INSERT, '[path/to/data]')
@@ -223,15 +223,33 @@ def add_components_model_training(master):
         text_file_name.delete(1.0, tk.END)
         text_file_name.insert(tk.INSERT, fname)
 
-    button_select = tk.Button(master, text='Select', command=select_file)
+    button_select = tk.Button(master, text='选择实验文件', command=select_file)
 
     def model_train():
+        ##############
+        # This function is to TRAINING a model using experiment data
+        # Todo: A function training model,
+        #       return training accuracy and model file
+
+        # Fetch experiment_file_path from textbox: text_file_name
+        experiment_file_path = text_file_name.get(1.0, tk.END)[:-1]
+
+        # Defence code: experiment_file_path should exist
+        # assert(os.path.exists(experiment_file_name))
+
+        # Train a model
+        # [acc, model_file] = model_train_on_data(experiment_file_name)
         acc = random.choice(range(70, 100))
+        model_file_path = 'xxx'
+
+        # Report
+        print('Experiment file is %s, model is %s, accuracy is %02d%%' % (
+            experiment_file_path, model_file_path, acc))
         label_score_output['text'] = '%02d%%' % acc
 
-    button_train = tk.Button(master, text='Train', command=model_train)
+    button_train = tk.Button(master, text='开始模型训练', command=model_train)
 
-    label_score = tk.Label(master, text='Score')
+    label_score = tk.Label(master, text='得分')
 
     label_score_output = tk.Label(master, text='--')
 
@@ -239,7 +257,7 @@ def add_components_model_training(master):
 
 
 def add_components_model_selection(master):
-    label_model_select = tk.Label(master, text='Select Model')
+    label_model_select = tk.Label(master, text='模型文件')
 
     text_file_name = tk.Text(master, height=3, width=20)
     text_file_name.insert(tk.INSERT, '[path/to/model]')
@@ -250,16 +268,16 @@ def add_components_model_selection(master):
         text_file_name.delete(1.0, tk.END)
         text_file_name.insert(tk.INSERT, fname)
 
-    button_select = tk.Button(master, text='Select', command=select_file)
+    button_select = tk.Button(master, text='选择模型文件', command=select_file)
 
     return label_model_select, text_file_name, button_select
 
 
 def add_components_profile_selection(master):
-    button_save = tk.Button(master, text='Save')
-    button_load = tk.Button(master, text='Load')
+    button_save = tk.Button(master, text='保存设置')
+    button_load = tk.Button(master, text='载入设置')
 
-    label = tk.Label(master, text='Profile name')
+    label = tk.Label(master, text='设置名称')
 
     combobox = ttk.Combobox(master, textvariable=tk.StringVar(), width=15)
     names = os.listdir('profiles')

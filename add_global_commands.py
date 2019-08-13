@@ -147,6 +147,8 @@ def mk_html_report_experiment1(infos, task_map):
                 for _run in range(num_runs):
                     f.write('<tr>')
                     for _trail in range(num_trails):
+                        # 0 means no motion
+                        # 1 means motion
                         f.write('<td>%d</td>' % task_map[(_run, _trail)])
                     f.write('</tr>')
 
@@ -194,9 +196,12 @@ def mk_html_report_experiment2(infos, task_map, predict_map, model_name):
                 for _run in range(num_runs):
                     f.write('<tr>')
                     for _trail in range(num_trails):
+                        # 0 means no motion
+                        # 1 means motion
                         if task_map[(_run, _trail)] == predict_map[(_run, _trail)]:
                             f.write('<td>%d</td>' % task_map[(_run, _trail)])
                         else:
+                            # '-' means the prediction is wrong.
                             f.write('<td>%d-</td>' % task_map[(_run, _trail)])
                     f.write('</tr>')
 
