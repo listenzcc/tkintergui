@@ -13,6 +13,7 @@ from fill_experiment1_info_block import get_experiment1_info
 from fill_experiment2_info_block import get_experiment2_info
 from perform_experiment import presentation, presentation_testing
 
+
 def set_command(button, command):
     button['command'] = command
 
@@ -63,22 +64,23 @@ def experiment1_go(parts, my_buffer):
     print_infos(infos)
 
     task_name = infos['experiment1_info']['task_name']
-    table = {'Quzhou ': 'quzhou',
-             'Shenchu': 'shenchu',
-             'Taishou': 'taiqi',
-             'Waizhan': 'waizhan'}
-    task_name = table[task_name]
+    table = {'屈 肘': 'quzhou',
+             '伸 臂': 'shenchu',
+             '前 屈': 'taiqi',
+             '侧 展': 'waizhan'}
+    task_innername = table[task_name]
 
     num_trails = infos['experiment1_info']['counter1_value']
-    num_runs = infos['experiment1_info']['counter2_value']
+    num_runs = 1  # infos['experiment1_info']['counter2_value']
 
-    task_map = presentation(task_name=task_name,
-                            num_trails=num_trails,
-                            num_runs=num_runs,
-                            infos=infos,
-                            my_buffer=my_buffer)
+    task_map, report_pre = presentation(task_name=task_name,
+                                        task_innername=task_innername,
+                                        num_trails=num_trails,
+                                        num_runs=num_runs,
+                                        infos=infos,
+                                        my_buffer=my_buffer)
 
-    mk_html_report_experiment1(infos, task_map)
+    mk_html_report_experiment1(infos, task_map, report_pre=report_pre)
 
     return infos
 
@@ -89,19 +91,20 @@ def experiment2_go(parts, my_buffer):
     print_infos(infos)
 
     task_name = infos['experiment2_info']['task_name']
-    table = {'Quzhou ': 'quzhou',
-             'Shenchu': 'shenchu',
-             'Taishou': 'taiqi',
-             'Waizhan': 'waizhan'}
-    task_name = table[task_name]
+    table = {'屈 肘': 'quzhou',
+             '伸 臂': 'shenchu',
+             '前 屈': 'taiqi',
+             '侧 展': 'waizhan'}
+    task_innername = table[task_name]
 
     num_trails = infos['experiment2_info']['counter1_value']
-    num_runs = infos['experiment2_info']['counter2_value']
+    num_runs = 1  # infos['experiment2_info']['counter2_value']
 
     model_name = infos['experiment2_info']['model_path']
 
     task_map, predict_map = presentation_testing(model=model_name,
                                                  task_name=task_name,
+                                                 task_innername=task_innername,
                                                  num_trails=num_trails,
                                                  num_runs=num_runs,
                                                  infos=infos,
@@ -112,13 +115,13 @@ def experiment2_go(parts, my_buffer):
     return infos
 
 
-def mk_html_report_experiment1(infos, task_map):
+def mk_html_report_experiment1(infos, task_map, report_pre='last'):
     html_tmp_path = os.path.join('resources', 'report_tmp.html')
 
     with open(html_tmp_path, 'rb') as f:
         lines = f.readlines()
 
-    new_html_path = os.path.join(os.path.join('reports', 'a.html'))
+    new_html_path = os.path.join(os.path.join('reports', report_pre+'.html'))
     with open(new_html_path, 'w') as f:
         for line in lines:
             f.write(line.decode())
@@ -131,14 +134,14 @@ def mk_html_report_experiment1(infos, task_map):
 
             if b'<!--tobefilled: experiment information-->' in line:
                 f.write('<td>%s</td>' % infos['experiment1_info']['task_name'])
-                f.write('<td>%d</td>' %
-                        infos['experiment1_info']['counter1_value'])
-                f.write('<td>%d</td>' %
-                        infos['experiment1_info']['counter2_value'])
+                f.write('<td>%d</td>' % len(task_map))
+                # infos['experiment1_info']['counter1_value'])
+                # f.write('<td>%d</td>' %
+                #         infos['experiment1_info']['counter2_value'])
 
             if b'<!--tobefilled: experiment detail-->' in line:
-                num_trails = infos['experiment1_info']['counter1_value']
-                num_runs = infos['experiment1_info']['counter2_value']
+                num_trails = len(task_map)
+                num_runs = 1  # infos['experiment1_info']['counter2_value']
                 f.write('<table>')
 
                 f.write('<thead>')
@@ -167,7 +170,12 @@ def mk_html_report_experiment2(infos, task_map, predict_map, model_name):
     with open(html_tmp_path, 'rb') as f:
         lines = f.readlines()
 
-    new_html_path = os.path.join(os.path.join('reports', 'a.html'))
+    pre = '-'.join(['Test',
+                    infos['subject_info']['subject_name'],
+                    infos['experiment2_info']['task_name'],
+                    time.strftime('%Y%m%d-%H-%M-%S')])
+
+    new_html_path = os.path.join(os.path.join('reports', pre+'.html'))
     with open(new_html_path, 'w') as f:
         for line in lines:
             f.write(line.decode())
@@ -180,14 +188,14 @@ def mk_html_report_experiment2(infos, task_map, predict_map, model_name):
 
             if b'<!--tobefilled: experiment information-->' in line:
                 f.write('<td>%s</td>' % infos['experiment1_info']['task_name'])
-                f.write('<td>%d</td>' %
-                        infos['experiment1_info']['counter1_value'])
-                f.write('<td>%d</td>' %
-                        infos['experiment1_info']['counter2_value'])
+                f.write('<td>%d</td>' % len(task_map))
+                # infos['experiment1_info']['counter1_value'])
+                # f.write('<td>%d</td>' %
+                #         infos['experiment1_info']['counter2_value'])
 
             if b'<!--tobefilled: experiment detail-->' in line:
-                num_trails = infos['experiment2_info']['counter1_value']
-                num_runs = infos['experiment2_info']['counter2_value']
+                num_trails = len(task_map)
+                num_runs = 1  # infos['experiment2_info']['counter2_value']
                 f.write('<table>')
 
                 f.write('<thead>')

@@ -4,11 +4,12 @@ import numpy as np
 from myClientNew import ScanClient
 
 class Buffer():
-    def __init__(self):
+    def __init__(self, offline=False):
         self.nchan = 68
         self.all_buffer = np.empty((self.nchan, 0))
         self.is_on = False
         self.record = False
+        self.offline = offline
 
     def record_buffer(self, buffer):
         if self.record:
@@ -22,8 +23,9 @@ class Buffer():
             print('Connected: IP: %s port: %d' % (IP, port))
             return 0
 
-        # Uncomment return 0 to disable on function to debug on no connection
-        # return 0
+        # No connection when offline testing
+        if self.offline:
+            return 0
 
         self.client = ScanClient(IP, port)
         self.client.register_receive_callback(self.record_buffer)
@@ -35,6 +37,7 @@ class Buffer():
 
     def off(self):
         if not self.is_on:
+            print('Unconnected, do nothing.')
             return 0
         print('Disconnect, connection can not be recovered.')
         try:
@@ -58,5 +61,7 @@ class Buffer():
 
     def output(self, n=4000):
         assert(not self.record)
+        if self.offline:
+            return 'offline'
         return self.all_buffer[:, -n:]
         

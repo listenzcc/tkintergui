@@ -129,10 +129,10 @@ def perform_task(task_name):
     msg.draw()
     win.flip()
 
-    table = {'Quzhou ': 'quzhou',
-             'Shenchu': 'shenchu',
-             'Taishou': 'taiqi',
-             'Waizhan': 'waizhan'}
+    table = {'屈 肘': 'quzhou',
+             '伸 臂': 'shenchu',
+             '前 屈': 'taiqi',
+             '侧 展': 'waizhan'}
     task_name = table[task_name]
 
     pics_dir = os.path.join('movie_4D', 'pics')
@@ -156,10 +156,10 @@ def perform_task(task_name):
 
 
 def add_components_experiment_task(master):
-    task_name = ['Quzhou ',
-                 'Shenchu',
-                 'Taishou',
-                 'Waizhan']
+    task_name = ['屈 肘',
+                 '伸 臂',
+                 '前 屈',
+                 '侧 展']
     radiobuttons = task_name.copy()
     var = tk.StringVar()
     for i, e in enumerate(task_name):
@@ -212,7 +212,9 @@ def add_components_connection_info(master):
     label_IP = tk.Label(master, text='IP:')
     label_port = tk.Label(master, text='port:')
 
-    return combobox_IP, combobox_port, label_IP, label_port
+    button_disconnect = tk.Button(master, text='Disconnect')
+
+    return combobox_IP, combobox_port, label_IP, label_port, button_disconnect
 
 
 def add_components_model_training(master):
@@ -272,7 +274,7 @@ def add_components_model_training(master):
         # Report
         print('Experiment file is %s, model is %s, accuracy is %f' % (
             experiment_file_path, model_file_path, acc))
-        label_score_output['text'] = '%02f' % acc
+        label_score_output['text'] = '%d%%' % (acc * 100)
 
     button_train = tk.Button(master, text='开始模型训练', command=model_train)
 

@@ -9,13 +9,13 @@ from myClientNew import ScanClient
 from psychopy import visual, core, event
 
 
-def presentation(task_name='quzhou', num_trails=5, num_runs=5,
+def presentation(task_name, task_innername, num_trails=5, num_runs=1,
                  infos=[], my_buffer=[]):
-    print(infos)
-    print(my_buffer)
+    # num_rest means there will be num_rest none-MI trails performed
+    num_rest = num_trails
+
     my_buffer.on(infos['connection_info']['IP'],
                  int(infos['connection_info']['port']))
-    # time.sleep(1)
 
     time_task = 4  # seconds
     time_rest = 2  # seconds
@@ -23,22 +23,22 @@ def presentation(task_name='quzhou', num_trails=5, num_runs=5,
 
     task_map = {}
     for r in range(num_runs):
-        n0 = random.sample(range(num_trails), k=int(num_trails/2))
-        for t in range(num_trails):
+        n0 = random.sample(range(num_rest+num_trails), k=num_trails)
+        for t in range(num_rest+num_trails):
             if t in n0:
-                task_map[(r, t)] = 0
-            else:
                 task_map[(r, t)] = 1
+            else:
+                task_map[(r, t)] = 0
 
-    win = visual.Window(size=(1000, 1000), color=(0, 0, 0))
+    win = visual.Window(size=(1920, 1080), pos=(0, 0), color=(-1, -1, -1))
+    # win = visual.Window(color=(0, 0, 0), fullsrc=True)
 
     pics_dir = os.path.join('movie_4D', 'pics')
-    num_pics = len([s for s in os.listdir(
-        pics_dir) if s.startswith(task_name)])
+    num_pics = len([s for s in os.listdir(pics_dir) if s.startswith(task_innername)])
     divide_pics = time_task / (num_pics-1)
 
     imgs = [visual.ImageStim(win, image=os.path.join(
-        pics_dir, '%s_%d.png' % (task_name, j))) for j in range(num_pics)]
+        pics_dir, '%s_%d.png' % (task_innername, j))) for j in range(num_pics)]
 
     note_imgs = {}
     for name in ['206_start.png',
@@ -59,7 +59,7 @@ def presentation(task_name='quzhou', num_trails=5, num_runs=5,
         if key == ['escape']:
             break
 
-        for _trail in range(num_trails):
+        for _trail in range(num_rest+num_trails):
             #############################################################
             # Trail start
             # Pre task stimuli
@@ -102,13 +102,15 @@ def presentation(task_name='quzhou', num_trails=5, num_runs=5,
     with open(os.path.join('last_data', 'last.pkl'), 'wb') as f:
         pickle.dump(all_data, f)
 
+    report_pre = '-'.join([infos['subject_info']['subject_name'],
+                                     task_name,
+                                     time.strftime('%Y%m%d-%H-%M-%S')])
+
     with open(os.path.join('last_data',
-                           '-'.join([infos['subject_info']['subject_name'],
-                                     time.strftime('%Y%m%d-%H-%M-%S'),
-                                     'data.pkl'])), 'wb') as f:
+                           '-'.join([report_pre, 'data.pkl'])), 'wb') as f:
         pickle.dump(all_data, f)
 
-    return task_map
+    return task_map, report_pre
 
 
 def predict(model, data):
@@ -131,8 +133,12 @@ def predict(model, data):
     return label
 
 
-def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=5,
+def presentation_testing(model, task_name, task_innername,
+                         num_trails=5, num_runs=1,
                          infos=[], my_buffer=[]):
+
+    # num_rest means there will be num_rest none-MI trails performed
+    num_rest = int(num_trails/2)
 
     print(infos)
     print(my_buffer)
@@ -150,23 +156,23 @@ def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=
     task_map = {}
     predict_map = {}
     for r in range(num_runs):
-        n0 = random.sample(range(num_trails), k=int(num_trails/2))
-        for t in range(num_trails):
+        n0 = random.sample(range(num_rest+num_trails), k=num_trails)
+        for t in range(num_rest+num_trails):
             if t in n0:
-                task_map[(r, t)] = 0
-            else:
                 task_map[(r, t)] = 1
+            else:
+                task_map[(r, t)] = 0
             predict_map[(r, t)] = 0
 
     win = visual.Window(size=(1000, 1000))
 
     pics_dir = os.path.join('movie_4D', 'pics')
     num_pics = len([s for s in os.listdir(
-        pics_dir) if s.startswith(task_name)])
+        pics_dir) if s.startswith(task_innername)])
     divide_pics = time_task / (num_pics-1)
 
     imgs = [visual.ImageStim(win, image=os.path.join(
-        pics_dir, '%s_%d.png' % (task_name, j))) for j in range(num_pics)]
+        pics_dir, '%s_%d.png' % (task_innername, j))) for j in range(num_pics)]
 
     note_imgs = {}
     for name in ['206_start.png',
@@ -187,7 +193,7 @@ def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=
         if key == ['escape']:
             break
 
-        for _trail in range(num_trails):
+        for _trail in range(num_rest+num_trails):
             #############################################################
             # Trail start
             # Pre task stimuli
@@ -223,9 +229,12 @@ def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=
             # Todo: read data from somewhere.
             # data = read_lastest_data(): read data from last several seconds.
             my_buffer.stop()
-            label = predict(model=infos['experiment2_info']['model_path'],
-                            data=my_buffer.output())
-            # label = 1
+            x = my_buffer.output()
+            if x == 'offline':
+                label = 1
+            else:
+                label = predict(model=infos['experiment2_info']['model_path'],
+                                data=my_buffer.output())
             predict_map[(_run, _trail)] = label
             if label == task_map[(_run, _trail)]:
                 msg = visual.TextStim(win, text='Correct.')
