@@ -13,14 +13,27 @@ from fill_experiment2_info_block import build_parts_experiment2_info
 from fill_profile_info_block import build_parts_profile_info
 from add_global_commands import set_command, save_profile, load_profile, experiment1_go, experiment2_go
 
+from myBuffer import Buffer
+
+for fname in ['last_data', 'last_model']:
+    if not os.path.exists(fname):
+        os.mkdir(fname)
+
 root = tk.Tk()
 root.geometry('800x800+100+100')
 root.resizable(False, False)
 
+my_buffer = Buffer()
+
 blocks = build_blocks(root)
 
-label = tk.Label(root, text='Author: listenzcc@ia.ac.cn ')
-label.place(relx=1, rely=1, anchor='se')
+def disconnect():
+    my_buffer.off()
+
+button = tk.Button(root, text='Disconnect', command=disconnect)
+button.place(relx=1, rely=1, anchor='se')
+# label = tk.Label(root, text='Author: listenzcc@ia.ac.cn ')
+# label.place(relx=1, rely=1, anchor='se')
 
 parts = {}
 
@@ -49,9 +62,9 @@ for block in parts.items():
         print('|--%d:' % i, e[0])
 
 set_command(parts['experiment1_info']['experiment1_task_gobutton'],
-            lambda p=parts: experiment1_go(p))
+            lambda p=parts, b=my_buffer: experiment1_go(p, b))
 set_command(parts['experiment2_info']['experiment2_task_gobutton'],
-            lambda p=parts: experiment2_go(p))
+            lambda p=parts, b=my_buffer: experiment2_go(p, b))
 set_command(parts['profile_info']['profile_button_save_profile'],
             lambda p=parts: save_profile(p))
 set_command(parts['profile_info']['profile_button_load_profile'],

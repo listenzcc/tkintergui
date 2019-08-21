@@ -21,7 +21,7 @@ def build_parts_modeltrain_info(master):
                      modeltrain_text_file_path=dict(row=2, column=0),
                      modeltrain_button_train=dict(row=3, column=0),
                      modeltrain_label_score=dict(row=4, column=0),
-                     modeltrain_label_score_output=dict(row=4, column=1))
+                     modeltrain_label_score_output=dict(row=5, column=0))
 
     for e in grid_info.keys():
         parts[e].grid(row=grid_info[e]['row'], column=grid_info[e]['column'],

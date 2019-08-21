@@ -7,6 +7,7 @@ def build_blocks(root):
     blocks = {}
 
     bg = '#f0f0f0'
+    bg = None
 
     ########################
     # Column 1
@@ -31,12 +32,12 @@ def build_blocks(root):
     # Experiment I Info
     block = Block(root, name='训练实验阶段', bg=bg)
     block.place(
-        relx=14/40, rely=1/40, relwidth=12/40, relheight=24/40, anchor='nw')
+        relx=14/40, rely=1/40, relwidth=12/40, relheight=22/40, anchor='nw')
     blocks['experiment1_info'] = block
     # Model Training Info
     block = Block(root, name='训练模型信息', bg=bg)
     block.place(
-        relx=14/40, rely=26/40, relwidth=12/40, relheight=12/40, anchor='nw')
+        relx=14/40, rely=24/40, relwidth=12/40, relheight=14/40, anchor='nw')
     blocks['modeltrain_info'] = block
 
     ########################

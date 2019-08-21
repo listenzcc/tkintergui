@@ -13,7 +13,6 @@ from fill_experiment1_info_block import get_experiment1_info
 from fill_experiment2_info_block import get_experiment2_info
 from perform_experiment import presentation, presentation_testing
 
-
 def set_command(button, command):
     button['command'] = command
 
@@ -58,7 +57,7 @@ def push_all_combobox_input(parts):
         parts['connection_info']['input_port']]]
 
 
-def experiment1_go(parts):
+def experiment1_go(parts, my_buffer):
     push_all_combobox_input(parts)
     infos = get_infos(parts)
     print_infos(infos)
@@ -74,14 +73,17 @@ def experiment1_go(parts):
     num_runs = infos['experiment1_info']['counter2_value']
 
     task_map = presentation(task_name=task_name,
-                            num_trails=num_trails, num_runs=num_runs)
+                            num_trails=num_trails,
+                            num_runs=num_runs,
+                            infos=infos,
+                            my_buffer=my_buffer)
 
     mk_html_report_experiment1(infos, task_map)
 
     return infos
 
 
-def experiment2_go(parts):
+def experiment2_go(parts, my_buffer):
     push_all_combobox_input(parts)
     infos = get_infos(parts)
     print_infos(infos)
@@ -101,7 +103,9 @@ def experiment2_go(parts):
     task_map, predict_map = presentation_testing(model=model_name,
                                                  task_name=task_name,
                                                  num_trails=num_trails,
-                                                 num_runs=num_runs)
+                                                 num_runs=num_runs,
+                                                 infos=infos,
+                                                 my_buffer=my_buffer)
 
     mk_html_report_experiment2(infos, task_map, predict_map, model_name)
 

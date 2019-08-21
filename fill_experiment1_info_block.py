@@ -14,7 +14,7 @@ def build_parts_experiment1_info(master):
 
     # Counter 1
     label_note, label_count, button_s1, button_a1 = add_components_counter(
-        master=master)
+        master=master, text='5')
     label_note['text'] = '每轮次数'
     parts['experiment1_counter1_label'] = label_note
     parts['experiment1_counter1_value'] = label_count
@@ -23,7 +23,7 @@ def build_parts_experiment1_info(master):
 
     # Counter 2
     label_note, label_count, button_s1, button_a1 = add_components_counter(
-        master=master)
+        master=master, text='1')
     label_note['text'] = '训练轮次'
     parts['experiment1_counter2_label'] = label_note
     parts['experiment1_counter2_value'] = label_count

@@ -4,9 +4,12 @@ from psychopy import visual, core, event
 import os
 import random
 import time
+import numpy as np
 import tkinter as tk
+import pickle
 from tkinter import ttk
 from tkinter import filedialog
+from myClassifiers import CSP_classifier, FBCSP_classifier
 
 
 class Block(tk.Frame):
@@ -40,7 +43,8 @@ class Block(tk.Frame):
 
 
 def random_color():
-    return '#' + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+    rand_string = 'ABCDEF'  # '0123456789ABCDEF'
+    return '#' + ''.join([random.choice(rand_string) for j in range(6)])
 
 
 def good_fg(bg):
@@ -171,17 +175,17 @@ def add_components_experiment_task(master):
     return radiobuttons, var, button
 
 
-def add_components_counter(master):
-    label_count = tk.Label(master, text='6')
+def add_components_counter(master, text='5'):
+    label_count = tk.Label(master, text=text)
 
     def _add():
         x = int(label_count['text'])
-        if x < 10:
+        if x < 100:
             label_count['text'] = '%d' % (x+1)
 
     def _sub():
         x = int(label_count['text'])
-        if x > 0:
+        if x > 1:
             label_count['text'] = '%d' % (x-1)
 
     button_s1 = tk.Button(master, text='-1', command=_sub)
@@ -195,13 +199,13 @@ def add_components_counter(master):
 def add_components_connection_info(master):
     combobox_IP = ttk.Combobox(master, textvariable=tk.StringVar(), width=15)
     combobox_IP.bind('<Key>', combobox_enter_pressed)
-    IPs = ['192.168.1.1']
+    IPs = ['192.168.1.103']
     combobox_IP['values'] = IPs
     combobox_IP.current(0)
 
     combobox_port = ttk.Combobox(master, textvariable=tk.StringVar(), width=15)
     combobox_port.bind('<Key>', combobox_enter_pressed)
-    ports = ['2000']
+    ports = ['4000']
     combobox_port['values'] = ports
     combobox_port.current(0)
 
@@ -215,7 +219,7 @@ def add_components_model_training(master):
     label_data_select = tk.Label(master, text='实验文件')
 
     text_file_name = tk.Text(master, height=3, width=20)
-    text_file_name.insert(tk.INSERT, '[path/to/data]')
+    text_file_name.insert(tk.INSERT, os.path.join('last_data', 'last.pkl'))
 
     def select_file():
         fname = filedialog.askopenfilename()
@@ -234,18 +238,41 @@ def add_components_model_training(master):
         # Fetch experiment_file_path from textbox: text_file_name
         experiment_file_path = text_file_name.get(1.0, tk.END)[:-1]
 
+
+        with open(experiment_file_path, 'rb') as f:
+            d = pickle.load(f)
+
+        num_sample = len(d)
+        shape = d[0][0].shape
+        train_x = np.empty([num_sample, shape[0], shape[1]])
+        train_y = np.empty([num_sample, 1])
+        for j, e in enumerate(d):
+            train_x[j] = e[0]
+            train_y[j] = e[1]
+
+        print(train_x.shape, train_y.shape)
+
         # Defence code: experiment_file_path should exist
         # assert(os.path.exists(experiment_file_name))
 
         # Train a model
+        # I suggest saving the model_file in 'models' folder
         # [acc, model_file] = model_train_on_data(experiment_file_name)
-        acc = random.choice(range(70, 100))
-        model_file_path = 'xxx'
+        cla = CSP_classifier()
+        # train_x:(None, 62, 4000), train_y:(None, 1)
+        acc = cla.fit(train_x, train_y)  
+        
+        # acc = random.choice(range(70, 100))
+        # save the fitted model
+        model_file_path = os.path.join('last_model',
+                                       os.path.basename(experiment_file_path)+'_fitted_model.pkl')
+        with open(model_file_path, 'wb') as f:
+            pickle.dump(cla, f)
 
         # Report
-        print('Experiment file is %s, model is %s, accuracy is %02d%%' % (
+        print('Experiment file is %s, model is %s, accuracy is %f' % (
             experiment_file_path, model_file_path, acc))
-        label_score_output['text'] = '%02d%%' % acc
+        label_score_output['text'] = '%02f' % acc
 
     button_train = tk.Button(master, text='开始模型训练', command=model_train)
 
@@ -260,7 +287,7 @@ def add_components_model_selection(master):
     label_model_select = tk.Label(master, text='模型文件')
 
     text_file_name = tk.Text(master, height=3, width=20)
-    text_file_name.insert(tk.INSERT, '[path/to/model]')
+    text_file_name.insert(tk.INSERT, os.path.join('last_model', 'last.pkl_fitted_model.pkl'))
 
     def select_file():
         fname = filedialog.askopenfilename()

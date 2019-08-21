@@ -3,12 +3,23 @@
 import os
 import time
 import random
+import pickle
+import numpy as np
+from myClientNew import ScanClient
 from psychopy import visual, core, event
 
 
-def presentation(task_name='quzhou', num_trails=5, num_runs=5):
+def presentation(task_name='quzhou', num_trails=5, num_runs=5,
+                 infos=[], my_buffer=[]):
+    print(infos)
+    print(my_buffer)
+    my_buffer.on(infos['connection_info']['IP'],
+                 int(infos['connection_info']['port']))
+    # time.sleep(1)
+
     time_task = 4  # seconds
     time_rest = 2  # seconds
+    time_after = 2 # seconds
 
     task_map = {}
     for r in range(num_runs):
@@ -19,7 +30,7 @@ def presentation(task_name='quzhou', num_trails=5, num_runs=5):
             else:
                 task_map[(r, t)] = 1
 
-    win = visual.Window(size=(1000, 1000))
+    win = visual.Window(size=(1000, 1000), color=(0, 0, 0))
 
     pics_dir = os.path.join('movie_4D', 'pics')
     num_pics = len([s for s in os.listdir(
@@ -29,61 +40,112 @@ def presentation(task_name='quzhou', num_trails=5, num_runs=5):
     imgs = [visual.ImageStim(win, image=os.path.join(
         pics_dir, '%s_%d.png' % (task_name, j))) for j in range(num_pics)]
 
-    string_welcome = u'\u00A1Prepare run %d|%d,\n press any key to continue!'
+    note_imgs = {}
+    for name in ['206_start.png',
+                 '206_red1.png',
+                 '206_red2.png',
+                 '206_green.png',
+                 '206_end.png']:
+        note_imgs[name] = visual.ImageStim(win, image=os.path.join(
+            pics_dir, '..', name))
+
+    all_data = []
     for _run in range(num_runs):
-        msg = visual.TextStim(win, text=string_welcome % (_run+1, num_runs))
-        msg.draw()
+        ###############################################################
+        # Run start
+        note_imgs['206_start.png'].draw()
         win.flip()
         key = event.waitKeys()
         if key == ['escape']:
             break
 
         for _trail in range(num_trails):
-            t = time.time()
-            while True:
-                circle = visual.Circle(win, radius=0.05, edges=32)
-                circle.setColor(random.choices(range(255), k=3), 'rgb255')
-                circle.draw()
-                win.flip()
-                if time_rest-(time.time()-t) < 0.1:
-                    core.wait(time_rest-(time.time()-t))
-                    break
-                core.wait(min(random.random(), time_rest-(time.time()-t)))
-            print('Passed: %f seconds.' % (time.time()-t))
+            #############################################################
+            # Trail start
+            # Pre task stimuli
+            my_buffer.start()
 
-            t = time.time()
             if task_map[(_run, _trail)] == 0:
+                # If not motion imagery
+                note_imgs['206_red2.png'].draw()
+                win.flip()
+                core.wait(time_rest)
+
                 imgs[0].draw()
                 win.flip()
-                core.wait(time_task-(time.time()-t))
-            else:
+                core.wait(time_task)
+
+            if task_map[(_run, _trail)] == 1:
+                # If motion imagery
+                note_imgs['206_red1.png'].draw()
+                win.flip()
+                core.wait(time_rest)
+
+                t = time.time()
                 for j, img in enumerate(imgs):
                     img.draw()
                     win.flip()
                     while (time.time()-t) < divide_pics*j:
                         pass
-            print('Passed: %f seconds.' % (time.time()-t))
+
+            # Save data for last 4 seconds
+            my_buffer.stop()
+            all_data.append([my_buffer.output(), task_map[(_run, _trail)]])
+
+            # Trail ends after time_after
+            note_imgs['206_green.png'].draw()
+            win.flip()
+            core.wait(time_after)
 
     win.close()
+
+    with open(os.path.join('last_data', 'last.pkl'), 'wb') as f:
+        pickle.dump(all_data, f)
+
+    with open(os.path.join('last_data',
+                           '-'.join([infos['subject_info']['subject_name'],
+                                     time.strftime('%Y%m%d-%H-%M-%S'),
+                                     'data.pkl'])), 'wb') as f:
+        pickle.dump(all_data, f)
 
     return task_map
 
 
-def predict(model=None, data=None):
+def predict(model, data):
+    '''
+    input: model_file_path, data of shape (None, 62, 4000)
+    output: pred_label
+    '''
     ##############
     # Predict whether imaging motion is performed, based on data and model
     # label= 0, 1: 0 means no motion, 1 means motion.
-    label = random.choice([0, 1])
+    # label = random.choice([0, 1])
+    with open(model, 'rb') as f:
+        cla = pickle.load(f)
+
+    data = data.reshape((1, ) + data.shape)
+    print(data.shape)
+
+    label = cla.predict(data)
+
     return label
 
 
-def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=5):
+def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=5,
+                         infos=[], my_buffer=[]):
+
+    print(infos)
+    print(my_buffer)
+    my_buffer.on(infos['connection_info']['IP'],
+                 int(infos['connection_info']['port']))
+
     if model is None:
         print('Warning: no model selected.')
     print('Model:', model)
 
     time_task = 4  # seconds
     time_rest = 2  # seconds
+    time_after = 2 # seconds
 
     task_map = {}
     predict_map = {}
@@ -106,40 +168,53 @@ def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=
     imgs = [visual.ImageStim(win, image=os.path.join(
         pics_dir, '%s_%d.png' % (task_name, j))) for j in range(num_pics)]
 
+    note_imgs = {}
+    for name in ['206_start.png',
+                 '206_red1.png',
+                 '206_red2.png',
+                 '206_green.png',
+                 '206_end.png']:
+        note_imgs[name] = visual.ImageStim(win, image=os.path.join(
+            pics_dir, '..', name))
+
     string_welcome = u'\u00A1Prepare run %d|%d,\n press any key to continue!'
     for _run in range(num_runs):
-        msg = visual.TextStim(win, text=string_welcome % (_run+1, num_runs))
-        msg.draw()
+        ###############################################################
+        # Run start
+        note_imgs['206_start.png'].draw()
         win.flip()
         key = event.waitKeys()
         if key == ['escape']:
             break
 
         for _trail in range(num_trails):
-            t = time.time()
-            while True:
-                circle = visual.Circle(win, radius=0.05, edges=32)
-                circle.setColor(random.choices(range(255), k=3), 'rgb255')
-                circle.draw()
-                win.flip()
-                if time_rest-(time.time()-t) < 0.1:
-                    core.wait(time_rest-(time.time()-t))
-                    break
-                core.wait(min(random.random(), time_rest-(time.time()-t)))
-            print('Passed: %f seconds.' % (time.time()-t))
+            #############################################################
+            # Trail start
+            # Pre task stimuli
+            my_buffer.start()
 
-            t = time.time()
             if task_map[(_run, _trail)] == 0:
+                # If not motion imagery
+                note_imgs['206_red2.png'].draw()
+                win.flip()
+                core.wait(time_rest)
+
                 imgs[0].draw()
                 win.flip()
-                core.wait(time_task-(time.time()-t))
-            else:
+                core.wait(time_task)
+
+            if task_map[(_run, _trail)] == 1:
+                # If motion imagery
+                note_imgs['206_red1.png'].draw()
+                win.flip()
+                core.wait(time_rest)
+
+                t = time.time()
                 for j, img in enumerate(imgs):
                     img.draw()
                     win.flip()
                     while (time.time()-t) < divide_pics*j:
                         pass
-            print('Passed: %f seconds.' % (time.time()-t))
 
             ########################
             # Predict whether imaging motion is performed,
@@ -147,7 +222,10 @@ def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=
             # I have invited model in.
             # Todo: read data from somewhere.
             # data = read_lastest_data(): read data from last several seconds.
-            label = predict(model=model, data=None)
+            my_buffer.stop()
+            label = predict(model=infos['experiment2_info']['model_path'],
+                            data=my_buffer.output())
+            # label = 1
             predict_map[(_run, _trail)] = label
             if label == task_map[(_run, _trail)]:
                 msg = visual.TextStim(win, text='Correct.')
@@ -155,7 +233,7 @@ def presentation_testing(model=None, task_name='quzhou', num_trails=5, num_runs=
                 msg = visual.TextStim(win, text='Wrong.')
             msg.draw()
             win.flip()
-            core.wait(1)
+            core.wait(time_after)
 
     win.close()
 
