@@ -4,7 +4,6 @@ import os
 import pickle
 import time
 import tkinter as tk
-import tkinter.font as tkFont
 
 from fill_root import build_blocks
 from fill_subject_info_block import build_parts_subject_info
@@ -15,8 +14,7 @@ from fill_experiment2_info_block import build_parts_experiment2_info
 from fill_profile_info_block import build_parts_profile_info
 from add_global_commands import set_command, save_profile, load_profile, experiment1_go, experiment2_go
 
-from myBuffer import Buffer
-
+import tkinter.font as tkFont
 from PIL import ImageTk, Image
 
 for fname in ['last_data', 'last_model']:
@@ -27,12 +25,9 @@ root = tk.Tk()
 root.geometry('800x800+100+100')
 root.resizable(False, False)
 
-tk.Image
-
-my_buffer = Buffer(offline=True)
-
-blocks = build_blocks(root)
-
+########################
+# Row 1
+# Logo
 img0 = Image.open(os.path.join('movie_4D', 'Logo_CASIC.jpg'))
 img0 = img0.resize((100, 100), Image.ANTIALIAS)
 img0 = ImageTk.PhotoImage(img0)
@@ -49,13 +44,15 @@ logo2 = tk.Label(root, text='上肢脑机康复系统',
                  font=tkFont.Font(family='Fixdsys', size=24, weight=tkFont.BOLD))
 logo2.place(relx=10/40, rely=0/40, relwidth=20/40, relheight=5/40, anchor='nw')
 
-def disconnect():
-    my_buffer.off()
-
+########################
+# Build blocks
+blocks = build_blocks(root)
 
 # label = tk.Label(root, text='Author: listenzcc@ia.ac.cn ')
 # label.place(relx=1, rely=1, anchor='se')
 
+########################
+# Fill blocks
 parts = {}
 
 parts['subject_info'] = build_parts_subject_info(
@@ -82,15 +79,16 @@ for block in parts.items():
     for i, e in enumerate(block[1].items()):
         print('|--%d:' % i, e[0])
 
+########################
+# Hook command functions
 set_command(parts['experiment1_info']['experiment1_task_gobutton'],
-            lambda p=parts, b=my_buffer: experiment1_go(p, b))
+            lambda p=parts: experiment1_go(p))
 set_command(parts['experiment2_info']['experiment2_task_gobutton'],
-            lambda p=parts, b=my_buffer: experiment2_go(p, b))
+            lambda p=parts: experiment2_go(p))
 set_command(parts['profile_info']['profile_button_save_profile'],
             lambda p=parts: save_profile(p))
 set_command(parts['profile_info']['profile_button_load_profile'],
             lambda p=parts: load_profile(p))
-set_command(parts['connection_info']['button_disconnect'], disconnect)
 
 root.mainloop()
 

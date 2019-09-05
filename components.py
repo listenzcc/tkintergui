@@ -212,9 +212,7 @@ def add_components_connection_info(master):
     label_IP = tk.Label(master, text='IP:')
     label_port = tk.Label(master, text='port:')
 
-    button_disconnect = tk.Button(master, text='Disconnect')
-
-    return combobox_IP, combobox_port, label_IP, label_port, button_disconnect
+    return combobox_IP, combobox_port, label_IP, label_port
 
 
 def add_components_model_training(master):
@@ -226,8 +224,18 @@ def add_components_model_training(master):
     def select_file():
         fname = filedialog.askopenfilename()
         print('Model training: %s selected.' % fname)
-        text_file_name.delete(1.0, tk.END)
-        text_file_name.insert(tk.INSERT, fname)
+
+        try:
+            with open(fname, 'rb') as f:
+                d = pickle.load(f)
+        
+            for j, e in enumerate(d):
+                print(j, e[1], e[0].shape)
+
+            text_file_name.delete(1.0, tk.END)
+            text_file_name.insert(tk.INSERT, fname)
+        except Exception:
+            pass
 
     button_select = tk.Button(master, text='选择实验文件', command=select_file)
 
@@ -248,9 +256,28 @@ def add_components_model_training(master):
         shape = d[0][0].shape
         train_x = np.empty([num_sample, shape[0], shape[1]])
         train_y = np.empty([num_sample, 1])
-        for j, e in enumerate(d):
-            train_x[j] = e[0]
-            train_y[j] = e[1]
+
+        #####################
+        # Protect for missing data
+        # In case there are trails whose data shape is not correct
+        j = 0
+        for e in d:
+            try:
+                train_x[j] = e[0]
+                train_y[j] = e[1]
+                j += 1
+            except:
+                pass
+
+        train_x = train_x[0:j]
+        train_y = train_y[0:j]
+
+        # import pdb
+        # pdb.set_trace()
+
+        # for j, e in enumerate(d):
+        #     train_x[j] = e[0]
+        #     train_y[j] = e[1]
 
         print(train_x.shape, train_y.shape)
 
